@@ -2,16 +2,13 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Midnight Ocean Portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zeltina Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Noto Sans KR', sans-serif; 
-            -webkit-tap-highlight-color: transparent; /* 모바일 터치 시 파란 박스 제거 */
-        }
+        body { font-family: 'Noto Sans KR', sans-serif; }
         
         /* Glassmorphism Effect */
         .glass-panel {
@@ -21,19 +18,10 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Active state for mobile touch */
-        .glass-panel:active {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(0.98);
-        }
-        
-        @media (hover: hover) {
-            .glass-panel:hover {
-                background: rgba(255, 255, 255, 0.1);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                box-shadow: 0 0 20px rgba(100, 200, 255, 0.3);
-                transform: translateY(-5px);
-            }
+        .glass-panel:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(100, 200, 255, 0.3);
         }
 
         /* Chart Container sizing */
@@ -44,293 +32,573 @@
         }
 
         /* Animation utilities */
-        .fade-in { animation: fadeIn 0.8s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Scrollbar hiding for clean look */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        /* View Transition */
+        .view-section {
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .hidden-view {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        /* Flow Chart Nodes */
+        .flow-node {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .flow-node:hover {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            transform: translateY(-2px);
+        }
+        .flow-arrow {
+            color: #64748b;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
-    <!-- Mobile Optimized Version -->
-    <!-- Application Structure Plan:
-         - Fixed background Canvas.
-         - Scrollable Main Content (min-h-screen).
-         - Stacked Grid for Mobile (grid-cols-1).
-         - Touch-friendly Modals.
+    <!-- Chosen Palette: Midnight Blue, Bioluminescent Cyan, Deep Purple -->
+    <!-- Application Structure Plan: 
+         - Main Dashboard: 3 Banners (Games, Systems, Github)
+         - View 2 (Games): Grid of 6 games -> Modal Detail
+         - View 3 (Systems): Grid of 6 systems -> Full Page Architecture Detail
+         - Architecture Detail: Header, Tech Stack, HTML-based Flow Chart, Detailed Specs
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="bg-slate-900 text-white min-h-screen overflow-x-hidden relative selection:bg-cyan-500 selection:text-white">
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center overflow-x-hidden relative selection:bg-cyan-500 selection:text-white">
 
-    <!-- Background Animation Canvas (Fixed position) -->
+    <!-- Background Animation Canvas -->
     <canvas id="bgCanvas" class="fixed inset-0 z-0 w-full h-full pointer-events-none"></canvas>
 
-    <!-- Main Content (Scrollable) -->
-    <main class="relative z-10 w-full max-w-7xl mx-auto px-5 py-10 flex flex-col items-center min-h-screen">
+    <!-- Main Content Container -->
+    <main class="relative z-10 w-full max-w-7xl px-4 py-8 flex flex-col items-center min-h-[90vh]">
         
-        <!-- Header -->
-        <header class="text-center mb-10 fade-in w-full">
-            <h1 class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-400 tracking-tighter drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
-                SUMMER NIGHT
+        <!-- Header (Always Visible) -->
+        <header class="text-center mb-8 fade-in flex-shrink-0">
+            <h1 class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-400 tracking-tighter drop-shadow-[0_0_10px_rgba(0,255,255,0.5)] cursor-pointer" onclick="app.switchView('main')">
+                ZELTINA PORTFOLIO
             </h1>
-            <p class="text-blue-200 mt-2 text-sm md:text-base opacity-80 font-light">
-                Interactive Portfolio
-            </p>
+            <p class="text-blue-200 mt-2 text-sm md:text-base opacity-80">Interactive Portfolio & Project Showcase</p>
         </header>
 
-        <!-- Three Main Banners (Responsive Grid) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl mb-12">
+        <!-- VIEW 1: Main Dashboard -->
+        <div id="view-main" class="view-section w-full max-w-6xl flex-grow flex flex-col items-center justify-center">
             
-            <!-- 1. Game Banner -->
-            <div onclick="app.openModal('game')" class="glass-panel rounded-2xl p-6 h-64 md:h-96 cursor-pointer transition-all duration-300 flex flex-col group relative overflow-hidden fade-in" style="animation-delay: 0.1s;">
-                <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/90 z-10"></div>
-                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1551006737-1c4b787c881c?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
+            <!-- Three Main Banners (Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full flex-grow items-center">
                 
-                <div class="relative z-20 mt-auto text-left">
-                    <span class="inline-block px-2 py-0.5 bg-cyan-500/80 text-[10px] md:text-xs font-bold rounded-full mb-2 backdrop-blur-sm">GAME PROJECT</span>
-                    <h2 class="text-xl md:text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">PROJECT: ABYSS</h2>
-                    <p class="text-gray-300 text-xs md:text-sm mt-1 line-clamp-2">심해를 탐험하며 잃어버린 고대 도시를 찾는 로그라이크 어드벤처.</p>
-                    <div class="mt-3 text-cyan-400 text-xs font-bold flex items-center gap-1">
-                        Tap to Detail <span class="text-lg">➜</span>
+                <!-- 1. Game Banner -->
+                <div onclick="app.switchView('games')" class="glass-panel rounded-2xl p-6 h-80 md:h-96 cursor-pointer transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 z-10"></div>
+                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
+                    
+                    <div class="relative z-20 mt-auto text-left">
+                        <span class="inline-block px-3 py-1 bg-cyan-500/80 text-xs font-bold rounded-full mb-2 backdrop-blur-sm shadow-[0_0_10px_rgba(0,255,255,0.3)]">CLICK TO ENTER</span>
+                        <h2 class="text-3xl font-bold text-white group-hover:text-cyan-300 transition-colors">GAME GALLERY</h2>
+                        <p class="text-gray-300 text-sm mt-1 line-clamp-2">개발한 다양한 게임 프로젝트들을 확인해보세요.</p>
+                        <div class="mt-4 flex items-center text-cyan-400 text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                            프로젝트 목록 보기 <span>➜</span>
+                        </div>
                     </div>
+                </div>
+
+                <!-- 2. Architecture/System Banner (Updated) -->
+                <div onclick="app.switchView('systems')" class="glass-panel rounded-2xl p-6 h-80 md:h-96 cursor-pointer transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-slate-900 via-indigo-900 to-slate-800 transition-transform duration-700 group-hover:scale-105"></div>
+                    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
+                    
+                    <div class="relative z-20 flex flex-col items-center justify-center h-full text-center">
+                        <div class="text-6xl mb-4 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-transform">⚙️</div>
+                        <h2 class="text-2xl font-bold text-white mb-2">SYSTEM CORE</h2>
+                        <p class="text-indigo-200 text-sm px-4">프로젝트별 아키텍처 및 데이터 흐름도 분석</p>
+                        <div class="mt-6 px-4 py-2 border border-indigo-400/50 rounded-lg text-indigo-300 text-xs hover:bg-indigo-500/20 transition-colors">
+                            시스템 구조 목록 보기 <span>➜</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Social Stack (Notion, GitHub, YouTube) -->
+                <div class="h-80 md:h-96 flex flex-col gap-4">
+                    
+                    <!-- Top: Notion -->
+                    <a href="https://www.notion.so/ZELTINA_NOTION-2ef92f38d65a80fc9dcadcc0b8a937c2" target="_blank" class="glass-panel rounded-xl flex-1 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 flex items-center px-6 gap-4 group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-slate-950/50 group-hover:bg-slate-900/30 transition-colors"></div>
+                        <div class="relative z-20 text-4xl group-hover:scale-110 transition-transform">📝</div>
+                        <div class="relative z-20">
+                            <h2 class="text-lg font-bold text-white group-hover:text-slate-200 transition-colors">NOTION</h2>
+                            <p class="text-slate-400 text-xs">포트폴리오 & 이력서 상세</p>
+                        </div>
+                        <div class="absolute right-4 text-slate-500 group-hover:text-white transition-colors">↗</div>
+                    </a>
+
+                    <!-- Middle: GitHub -->
+                    <a href="https://github.com/zeltina99" target="_blank" class="glass-panel rounded-xl flex-1 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 flex items-center px-6 gap-4 group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-slate-950/50 group-hover:bg-slate-900/30 transition-colors"></div>
+                        <div class="relative z-20 text-4xl group-hover:scale-110 transition-transform">🐙</div>
+                        <div class="relative z-20">
+                            <h2 class="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">GITHUB</h2>
+                            <p class="text-slate-400 text-xs">소스 코드 저장소</p>
+                        </div>
+                        <div class="absolute right-4 text-slate-500 group-hover:text-cyan-300 transition-colors">↗</div>
+                    </a>
+
+                    <!-- Bottom: YouTube -->
+                    <a href="https://www.youtube.com/@Micromys1012" target="_blank" class="glass-panel rounded-xl flex-1 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 flex items-center px-6 gap-4 group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-slate-950/50 group-hover:bg-slate-900/30 transition-colors"></div>
+                        <div class="relative z-20 text-4xl group-hover:scale-110 transition-transform">▶</div>
+                        <div class="relative z-20">
+                            <h2 class="text-lg font-bold text-white group-hover:text-red-400 transition-colors">YOUTUBE</h2>
+                            <p class="text-slate-400 text-xs">개발 영상 & 플레이</p>
+                        </div>
+                        <div class="absolute right-4 text-slate-500 group-hover:text-red-400 transition-colors">↗</div>
+                    </a>
+
                 </div>
             </div>
 
-            <!-- 2. Architecture/System Banner -->
-            <div onclick="app.openModal('arch')" class="glass-panel rounded-2xl p-6 h-64 md:h-96 cursor-pointer transition-all duration-300 flex flex-col group relative overflow-hidden fade-in" style="animation-delay: 0.2s;">
-                <div class="absolute inset-0 bg-gradient-to-tr from-slate-900 via-indigo-900 to-slate-800 transition-transform duration-700 group-hover:scale-105"></div>
-                
-                <div class="relative z-20 flex flex-col items-center justify-center h-full text-center">
-                    <div class="text-5xl md:text-6xl mb-4 opacity-90">⚙️</div>
-                    <h2 class="text-xl md:text-2xl font-bold text-white mb-2">SYSTEM CORE</h2>
-                    <p class="text-indigo-200 text-xs md:text-sm px-4 break-keep">서버 아키텍처 및 데이터 흐름도 시각화</p>
-                    <div class="mt-4 px-4 py-2 border border-indigo-400/50 rounded-lg text-indigo-300 text-xs bg-indigo-500/10">
-                        View Architecture
-                    </div>
+            <!-- Footer Links -->
+            <footer class="w-full mt-8 glass-panel rounded-full px-8 py-4 flex flex-wrap justify-center gap-8">
+                <div class="flex items-center gap-2 text-slate-300 group cursor-default">
+                    <span class="text-xl">👤</span>
+                    <span class="text-sm font-bold">최지원</span>
                 </div>
-            </div>
-
-            <!-- 3. GitHub Banner -->
-            <a href="https://github.com/zeltina99" target="_blank" class="glass-panel rounded-2xl p-6 h-64 md:h-96 cursor-pointer transition-all duration-300 flex flex-col group relative overflow-hidden justify-center items-center fade-in" style="animation-delay: 0.3s;">
-                <div class="absolute inset-0 bg-slate-950/80 group-hover:bg-slate-900 transition-colors"></div>
-                <div class="absolute inset-0 border-2 border-dashed border-slate-700 rounded-2xl m-2 opacity-50"></div>
-                
-                <div class="relative z-20 text-center">
-                    <div class="text-6xl md:text-7xl mb-4 text-white">🐙</div>
-                    <h2 class="text-xl md:text-2xl font-bold text-white">SOURCE CODE</h2>
-                    <p class="text-slate-400 text-xs mt-2">GitHub 리포지토리 바로가기</p>
-                    <span class="mt-4 inline-block text-[10px] text-slate-500 font-mono bg-black/30 px-2 py-1 rounded">@zeltina99</span>
-                </div>
-            </a>
+                <a href="tel:010-8297-4970" class="flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors group">
+                    <span class="text-xl group-hover:scale-125 transition-transform">📞</span>
+                    <span class="text-sm font-medium">010-8297-4970</span>
+                </a>
+                <a href="mailto:zeltina99@naver.com" class="flex items-center gap-2 text-slate-400 hover:text-purple-400 transition-colors group">
+                    <span class="text-xl group-hover:scale-125 transition-transform">✉️</span>
+                    <span class="text-sm font-medium">zeltina99@naver.com</span>
+                </a>
+            </footer>
         </div>
 
-        <!-- Footer Links -->
-        <footer class="w-full max-w-4xl glass-panel rounded-2xl px-6 py-6 flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 fade-in mb-8">
-            <a href="#" class="flex items-center gap-3 text-slate-400 hover:text-red-400 transition-colors w-full md:w-auto justify-center md:justify-start p-2 active:bg-white/5 rounded-lg">
-                <span class="text-xl">📺</span>
-                <span class="text-sm font-medium">Devlog YouTube</span>
-            </a>
-            <div class="w-full h-[1px] bg-white/10 md:hidden"></div>
-            <a href="#" class="flex items-center gap-3 text-slate-400 hover:text-cyan-400 transition-colors w-full md:w-auto justify-center md:justify-start p-2 active:bg-white/5 rounded-lg">
-                <span class="text-xl">📄</span>
-                <span class="text-sm font-medium">Tech Docs & Wiki</span>
-            </a>
-            <div class="w-full h-[1px] bg-white/10 md:hidden"></div>
-            <a href="#" class="flex items-center gap-3 text-slate-400 hover:text-purple-400 transition-colors w-full md:w-auto justify-center md:justify-start p-2 active:bg-white/5 rounded-lg">
-                <span class="text-xl">📧</span>
-                <span class="text-sm font-medium">Contact Me</span>
-            </a>
-        </footer>
+        <!-- VIEW 2: Game List Gallery -->
+        <div id="view-games" class="view-section hidden-view w-full max-w-6xl flex-grow flex flex-col pb-12">
+            <div class="w-full flex justify-between items-center mb-6 px-2 sticky top-0 z-30 py-4 bg-slate-900/80 backdrop-blur-md rounded-b-xl border-b border-white/5">
+                <button onclick="app.switchView('main')" class="flex items-center gap-2 text-cyan-300 hover:text-white transition-colors group">
+                    <span class="text-xl group-hover:-translate-x-1 transition-transform">←</span>
+                    <span class="font-bold">Back to Main</span>
+                </button>
+                <span class="text-slate-400 text-sm hidden md:inline">Select a project to view details</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-10" id="game-grid-container">
+                <!-- Game Cards injected by JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: System List Gallery (New) -->
+        <div id="view-systems" class="view-section hidden-view w-full max-w-6xl flex-grow flex flex-col pb-12">
+            <div class="w-full flex justify-between items-center mb-6 px-2 sticky top-0 z-30 py-4 bg-slate-900/80 backdrop-blur-md rounded-b-xl border-b border-white/5">
+                <button onclick="app.switchView('main')" class="flex items-center gap-2 text-indigo-300 hover:text-white transition-colors group">
+                    <span class="text-xl group-hover:-translate-x-1 transition-transform">←</span>
+                    <span class="font-bold">Back to Main</span>
+                </button>
+                <span class="text-slate-400 text-sm hidden md:inline">Select a project to analyze architecture</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mb-10" id="system-grid-container">
+                <!-- System Cards injected by JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 4: Architecture Detail Page (New Full Page) -->
+        <div id="view-arch-detail" class="view-section hidden-view w-full max-w-5xl flex-grow flex flex-col pb-12">
+            <div class="w-full flex justify-between items-center mb-8 px-2">
+                <button onclick="app.switchView('systems')" class="flex items-center gap-2 text-indigo-300 hover:text-white transition-colors group">
+                    <span class="text-xl group-hover:-translate-x-1 transition-transform">←</span>
+                    <span class="font-bold">Back to Systems</span>
+                </button>
+                <div class="text-right">
+                    <h2 id="arch-detail-title" class="text-2xl font-bold text-white">PROJECT TITLE</h2>
+                    <span id="arch-detail-subtitle" class="text-xs text-slate-400 font-mono">Architecture Breakdown</span>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div class="glass-panel p-8 rounded-2xl w-full border border-indigo-500/20">
+                
+                <!-- 1. Tech Stack Overview -->
+                <div class="mb-10">
+                    <h3 class="text-lg font-bold text-indigo-300 mb-4 border-l-4 border-indigo-500 pl-3">CORE TECHNOLOGY</h3>
+                    <div id="arch-tech-stack" class="flex flex-wrap gap-3">
+                        <!-- Badges via JS -->
+                    </div>
+                </div>
+
+                <!-- 2. Data Flow Chart (HTML/Grid based) -->
+                <div class="mb-10">
+                    <h3 class="text-lg font-bold text-indigo-300 mb-4 border-l-4 border-indigo-500 pl-3">DATA FLOW & STRUCTURE</h3>
+                    <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700 overflow-x-auto">
+                        <div id="arch-flow-chart" class="min-w-[600px] flex flex-col items-center gap-4">
+                            <!-- Flow Nodes via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Detailed Logic -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-indigo-300 mb-4 border-l-4 border-indigo-500 pl-3">KEY ALGORITHMS</h3>
+                        <ul id="arch-algorithms" class="space-y-3 text-sm text-slate-300">
+                            <!-- List via JS -->
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-indigo-300 mb-4 border-l-4 border-indigo-500 pl-3">PERFORMANCE METRICS</h3>
+                        <div class="chart-container h-48">
+                            <canvas id="archDetailChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
-    <!-- MODAL: Game Detail -->
-    <div id="modal-game" class="fixed inset-0 z-50 hidden flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm transition-opacity" onclick="app.closeModal('game')"></div>
-        <div class="relative w-full max-w-3xl glass-panel bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            
-            <!-- Modal Header -->
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-900/50 sticky top-0 z-10">
-                <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-cyan-300">PROJECT: ABYSS</h2>
-                    <p class="text-slate-400 text-xs">Unity 3D | 2024</p>
-                </div>
-                <button onclick="app.closeModal('game')" class="text-slate-400 hover:text-white text-3xl leading-none px-2">&times;</button>
-            </div>
-            
-            <!-- Modal Body (Scrollable) -->
-            <div class="p-6 overflow-y-auto">
-                <div class="bg-slate-800 rounded-lg h-40 md:h-56 flex items-center justify-center border border-slate-700 mb-6 bg-[url('https://images.unsplash.com/photo-1551006737-1c4b787c881c?auto=format&fit=crop&q=80&w=800')] bg-cover bg-center">
-                    <!-- Image Background -->
-                </div>
-                
-                <h3 class="text-lg font-bold text-white mb-2">게임 소개</h3>
-                <p class="text-slate-300 text-sm leading-relaxed mb-4">
-                    'Abyss'는 깊은 심해를 배경으로 한 생존 탐험 게임입니다. 모바일 환경에서도 쾌적하게 즐길 수 있도록 최적화되었습니다.
-                </p>
-                
-                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                    <h4 class="text-xs font-bold text-cyan-400 mb-2">KEY FEATURES</h4>
-                    <ul class="text-xs text-slate-300 space-y-1">
-                        <li>• 실시간 유체 시뮬레이션 (Fluid Sim)</li>
-                        <li>• 절차적 맵 생성 (Procedural Gen)</li>
-                        <li>• 모바일 최적화 컨트롤러</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: Architecture Detail -->
-    <div id="modal-arch" class="fixed inset-0 z-50 hidden flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="app.closeModal('arch')"></div>
-        <div class="relative w-full max-w-3xl glass-panel bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            
-            <div class="p-6 border-b border-white/10 flex justify-between items-center bg-slate-900/50 sticky top-0 z-10">
-                <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-indigo-300">SYSTEM ARCHITECTURE</h2>
-                    <p class="text-slate-400 text-xs">Tech Stack & Data Flow</p>
-                </div>
-                <button onclick="app.closeModal('arch')" class="text-slate-400 hover:text-white text-3xl leading-none px-2">&times;</button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto">
-                <div class="flex flex-wrap gap-2 mb-6">
-                    <span class="px-2 py-1 bg-blue-900/50 text-blue-200 text-xs rounded border border-blue-700">C++</span>
-                    <span class="px-2 py-1 bg-green-900/50 text-green-200 text-xs rounded border border-green-700">Node.js</span>
-                    <span class="px-2 py-1 bg-orange-900/50 text-orange-200 text-xs rounded border border-orange-700">AWS</span>
-                </div>
-
-                <div class="bg-slate-800/30 p-4 rounded-xl border border-slate-700 mb-4">
-                    <h4 class="text-center text-xs font-bold text-slate-400 mb-2">PERFORMANCE CHART</h4>
-                    <div class="chart-container">
-                        <canvas id="archChart"></canvas>
+    <!-- MODAL: Game Detail (Existing) -->
+    <div id="modal-game" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="app.closeModal('game')"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl glass-panel bg-slate-900 p-8 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto border border-slate-700">
+            <button onclick="app.closeModal('game')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-3xl">&times;</button>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <div class="md:col-span-3 space-y-4">
+                    <h2 id="modal-game-title" class="text-3xl font-bold text-cyan-300 mb-1">TITLE</h2>
+                    <p id="modal-game-period" class="text-slate-400 text-sm">Period</p>
+                    <div id="modal-game-img" class="bg-slate-800 rounded-lg h-64 w-full flex items-center justify-center border border-slate-700 overflow-hidden bg-cover bg-center"></div>
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <a id="modal-btn-youtube" href="#" target="_blank" class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white py-3 rounded-lg font-bold transition-colors shadow-lg shadow-red-900/50"><span>▶</span> YouTube Play</a>
+                        <a id="modal-btn-github" href="#" target="_blank" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg font-bold transition-colors border border-slate-600"><span>🐙</span> GitHub Code</a>
                     </div>
                 </div>
-
-                <ul class="space-y-2 text-xs text-slate-300 bg-slate-800/50 p-4 rounded-lg">
-                    <li class="flex items-start gap-2">
-                        <span class="text-indigo-400 font-bold">✓</span>
-                        <span>마이크로서비스(MSA) 기반 확장성 설계</span>
-                    </li>
-                    <li class="flex items-start gap-2">
-                        <span class="text-indigo-400 font-bold">✓</span>
-                        <span>Redis 캐싱으로 응답 속도 50% 향상</span>
-                    </li>
-                </ul>
+                <div class="md:col-span-2 flex flex-col justify-center space-y-6">
+                    <div><h3 class="text-xl font-bold text-white border-b border-slate-700 pb-2 mb-3">프로젝트 소개</h3><p id="modal-game-desc" class="text-slate-300 text-sm leading-relaxed"></p></div>
+                    <div><h3 class="text-xl font-bold text-white border-b border-slate-700 pb-2 mb-3">주요 기능</h3><ul id="modal-game-features" class="text-sm text-cyan-200 list-disc list-inside space-y-1"></ul></div>
+                    <div><h3 class="text-xl font-bold text-white border-b border-slate-700 pb-2 mb-3">사용 기술</h3><div id="modal-game-tech" class="flex flex-wrap gap-2"></div></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- DATA ---
+        const gameData = [
+            {
+                id: 'abyss',
+                title: 'PROJECT: ABYSS',
+                period: '2024.06 - 2024.08 | Unity 3D',
+                desc: '깊은 심해를 탐험하며 잃어버린 고대 도시를 찾는 로그라이크 어드벤처입니다. 독자적인 쉐이더를 사용하여 심해의 몽환적인 분위기를 구현했습니다.',
+                features: ['실시간 유체 시뮬레이션', '절차적 맵 생성 (Procedural Generation)', '다이내믹 라이팅 시스템'],
+                tech: ['Unity', 'C#', 'HLSL', 'Photon'],
+                img: 'https://images.unsplash.com/photo-1551006737-1c4b787c881c?auto=format&fit=crop&q=80&w=800',
+                youtube: 'https://youtube.com', github: 'https://github.com/zeltina99',
+                // Architecture Details
+                arch: {
+                    desc: '마이크로서비스 아키텍처(MSA)를 적용하여 게임 로직과 데이터 처리를 분리했습니다.',
+                    flow: [
+                        { type: 'node', text: 'Client (Unity)' },
+                        { type: 'arrow', text: 'Auth & Matchmaking' },
+                        { type: 'node', text: 'AWS API Gateway' },
+                        { type: 'arrow', text: 'Route Request' },
+                        { type: 'split', nodes: ['Game Server (Photon)', 'User Data Service (Node.js)'] },
+                        { type: 'arrow', text: 'Persist Data' },
+                        { type: 'node', text: 'MongoDB Atlas' }
+                    ],
+                    algos: ['Marching Cubes 알고리즘을 이용한 지형 생성', 'Boids 알고리즘 기반 물고기 군집 AI', 'A* Pathfinding 최적화'],
+                    stats: [85, 90, 95, 88, 92] // [Stab, Scal, Sec, Perf, Code]
+                }
+            },
+            {
+                id: 'racer',
+                title: 'NEON RACER',
+                period: '2023.12 - 2024.02 | Unreal Engine 5',
+                desc: '사이버펑크 도시를 질주하는 하이퍼 아케이드 레이싱 게임입니다. 속도감 있는 연출과 멀티플레이 대전 기능을 지원합니다.',
+                features: ['물리 기반 차량 컨트롤', '16인 실시간 멀티플레이', '커스텀 트랙 에디터'],
+                tech: ['UE5', 'C++', 'Blueprints', 'AWS Gamelift'],
+                img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=800',
+                youtube: 'https://youtube.com', github: 'https://github.com/zeltina99',
+                arch: {
+                    desc: 'Dedicated Server 방식을 사용하여 레이턴시를 최소화하고 공정한 판정을 보장합니다.',
+                    flow: [
+                        { type: 'node', text: 'Client (UE5)' },
+                        { type: 'arrow', text: 'UDP Packet (Input)' },
+                        { type: 'node', text: 'AWS Gamelift Fleet' },
+                        { type: 'arrow', text: 'Replication / State Sync' },
+                        { type: 'node', text: 'Session Manager (Redis)' },
+                        { type: 'arrow', text: 'Async Save' },
+                        { type: 'node', text: 'DynamoDB' }
+                    ],
+                    algos: ['서버 권한 기반 물리 시뮬레이션 (Server Authoritative)', 'Client-side Prediction & Interpolation', 'Quadtree 공간 분할 충돌 감지'],
+                    stats: [95, 80, 85, 98, 85]
+                }
+            },
+            {
+                id: 'sky',
+                title: 'SKY ISLAND',
+                period: '2023.05 - 2023.07 | Unity 3D',
+                desc: '하늘에 떠 있는 섬들을 오가며 퍼즐을 푸는 힐링 어드벤처 게임입니다. 로우 폴리곤 아트 스타일을 적용했습니다.',
+                features: ['중력 조작 퍼즐 메커니즘', '오픈 월드 비행 시스템', '잔잔한 BGM 시스템'],
+                tech: ['Unity', 'C#', 'Blender'],
+                img: 'https://images.unsplash.com/photo-1621255551927-4148480b5435?auto=format&fit=crop&q=80&w=800',
+                youtube: 'https://youtube.com', github: 'https://github.com/zeltina99',
+                arch: {
+                    desc: '클라이언트 중심의 구조로, 대규모 오픈 월드 렌더링 최적화에 집중했습니다.',
+                    flow: [
+                        { type: 'node', text: 'Player Controller' },
+                        { type: 'arrow', text: 'Input Event' },
+                        { type: 'split', nodes: ['Physics System (Gravity)', 'Audio Manager (FMOD)'] },
+                        { type: 'arrow', text: 'Update State' },
+                        { type: 'node', text: 'World Chunk Streamer' }
+                    ],
+                    algos: ['LOD (Level of Detail) 동적 적용 시스템', '절차적 구름 생성 (Perlin Noise)', 'Verlet Integration 기반 로프 물리'],
+                    stats: [90, 70, 75, 95, 90]
+                }
+            },
+            {
+                id: 'dungeon',
+                title: 'PIXEL DUNGEON',
+                period: '2023.01 - 2023.04 | Unity 2D',
+                desc: '고전 레트로 감성의 픽셀 아트 로그라이크 게임입니다. 매번 변하는 던전과 다양한 아이템 조합이 특징입니다.',
+                features: ['랜덤 던전 생성 알고리즘', '200여 종의 아이템 및 장비', '픽셀 아트 애니메이션'],
+                tech: ['Unity', 'C#', 'Aseprite'],
+                img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800',
+                youtube: 'https://youtube.com', github: 'https://github.com/zeltina99',
+                arch: {
+                    desc: '데이터 주도 설계(Data-Driven Design)를 통해 아이템과 몬스터 확장이 용이합니다.',
+                    flow: [
+                        { type: 'node', text: 'Game Loop' },
+                        { type: 'arrow', text: 'Turn Tick' },
+                        { type: 'split', nodes: ['Player Action', 'Enemy AI Agent'] },
+                        { type: 'arrow', text: 'Validate Move' },
+                        { type: 'node', text: 'Grid Map System' }
+                    ],
+                    algos: ['BSP (Binary Space Partitioning) 던전 생성', 'Cellular Automata 동굴 생성', 'Dijkstra Map 기반 AI 추적'],
+                    stats: [88, 85, 80, 92, 95]
+                }
+            },
+            {
+                id: 'rhythm',
+                title: 'BEAT GALAXY',
+                period: '2022.09 - 2022.12 | Unity 3D',
+                desc: '우주를 배경으로 펼쳐지는 리듬 액션 게임입니다. 음악의 비트에 맞춰 노트를 처리하며 행성을 여행합니다.',
+                features: ['음악 분석 및 비트 자동 생성', '화려한 파티클 이펙트', '글로벌 랭킹 시스템'],
+                tech: ['Unity', 'C#', 'FMOD'],
+                img: 'https://images.unsplash.com/photo-1514525253440-b393452e8d26?auto=format&fit=crop&q=80&w=800',
+                youtube: 'https://youtube.com', github: 'https://github.com/zeltina99',
+                arch: {
+                    desc: '오디오 스펙트럼 분석 데이터를 시각 효과와 게임플레이에 실시간으로 동기화합니다.',
+                    flow: [
+                        { type: 'node', text: 'Audio Source (MP3)' },
+                        { type: 'arrow', text: 'FFT Analysis' },
+                        { type: 'split', nodes: ['Note Spawner', 'VFX Controller'] },
+                        { type: 'arrow', text: 'Hit 판정' },
+                        { type: 'node', text: 'Score Manager' }
+                    ],
+                    algos: ['FFT (Fast Fourier Transform) 주파수 분석', 'Object Pooling 최적화', 'Audio Latency Compensation'],
+                    stats: [92, 75, 80, 96, 88]
+                }
+            },
+            {
+                id: 'mystery',
+                title: 'MYSTERY MANSION',
+                period: '2022.05 - 2022.08 | Unreal Engine 4',
+                desc: '폐가에서 일어나는 기이한 현상을 조사하는 1인칭 공포 퍼즐 게임입니다. 사실적인 그래픽과 사운드로 공포감을 극대화했습니다.',
+                features: ['물리 기반 상호작용 퍼즐', '3D 사운드 및 공포 연출', '비선형적 스토리 진행'],
+                tech: ['UE4', 'Blueprints', 'C++'],
+                img: 'https://images.unsplash.com/photo-1505567745926-ba89000d255a?auto=format&fit=crop&q=80&w=800',
+                youtube: 'https://youtube.com', github: 'https://github.com/zeltina99',
+                arch: {
+                    desc: '이벤트 기반 스크립팅 시스템으로 복잡한 퍼즐과 스토리 트리거를 관리합니다.',
+                    flow: [
+                        { type: 'node', text: 'Interaction System' },
+                        { type: 'arrow', text: 'Trace Object' },
+                        { type: 'node', text: 'Event Dispatcher' },
+                        { type: 'arrow', text: 'Trigger' },
+                        { type: 'split', nodes: ['Quest Manager', 'Sequencer (Cinematic)'] }
+                    ],
+                    algos: ['Finite State Machine (FSM) 몬스터 AI', 'Dynamic Material Instances', 'Save/Load Serialization'],
+                    stats: [85, 70, 75, 88, 90]
+                }
+            }
+        ];
+
         // --- 1. Background Animation (Canvas) ---
         const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
         let particles = [];
 
-        function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
         class Particle {
-            constructor() {
-                this.reset();
-            }
-
-            reset() {
-                this.x = Math.random() * width;
-                this.y = height + Math.random() * 100;
-                this.speed = 0.5 + Math.random() * 1.5;
-                this.size = Math.random() * 2;
-                this.alpha = 0.1 + Math.random() * 0.5;
-                this.wobble = Math.random() * Math.PI * 2;
-            }
-
-            update() {
-                this.y -= this.speed;
-                this.wobble += 0.05;
-                this.x += Math.sin(this.wobble) * 0.5;
-                
-                if (this.y < height * 0.2) this.alpha -= 0.005;
-
-                if (this.y < -10 || this.alpha <= 0) {
-                    this.reset();
-                }
-            }
-
-            draw() {
-                ctx.fillStyle = `rgba(100, 200, 255, ${this.alpha})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
+            constructor() { this.reset(); }
+            reset() { this.x = Math.random() * width; this.y = height + Math.random() * 100; this.speed = 0.5 + Math.random() * 1.5; this.size = Math.random() * 2; this.alpha = 0.1 + Math.random() * 0.5; this.wobble = Math.random() * Math.PI * 2; }
+            update() { this.y -= this.speed; this.wobble += 0.05; this.x += Math.sin(this.wobble) * 0.5; if (this.y < height * 0.2) this.alpha -= 0.005; if (this.y < -10 || this.alpha <= 0) this.reset(); }
+            draw() { ctx.fillStyle = `rgba(100, 200, 255, ${this.alpha})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
         }
-
-        function initParticles() {
-            particles = [];
-            const particleCount = Math.min(Math.floor(width * 0.1), 100); // Limit particles for mobile performance
-            for (let i = 0; i < particleCount; i++) {
-                const p = new Particle();
-                p.y = Math.random() * height;
-                particles.push(p);
-            }
-        }
-
+        function initParticles() { particles = []; const count = Math.floor(width * 0.15); for (let i = 0; i < count; i++) particles.push(new Particle()); }
         function animate() {
             const gradient = ctx.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, '#0f172a');
-            gradient.addColorStop(1, '#020617');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
-            requestAnimationFrame(animate);
+            gradient.addColorStop(0, '#0f172a'); gradient.addColorStop(1, '#020617');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate);
         }
-
         window.addEventListener('resize', () => { resize(); initParticles(); });
-        resize();
-        initParticles();
-        animate();
-
+        resize(); initParticles(); animate();
 
         // --- 2. Application Logic ---
         const app = {
             chartInstance: null,
 
-            openModal(type) {
-                const modal = document.getElementById(`modal-${type}`);
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Prevent body scroll when modal is open
+            init() {
+                this.renderGameList();
+                this.renderSystemList();
+            },
+
+            // Render Game Cards
+            renderGameList() {
+                const container = document.getElementById('game-grid-container');
+                container.innerHTML = gameData.map((game, index) => `
+                    <div onclick="app.openGameDetail('${game.id}')" class="glass-panel rounded-2xl p-4 h-80 cursor-pointer transition-all duration-300 transform hover:-translate-y-2 flex flex-col group relative overflow-hidden" style="animation-delay: ${index * 100}ms">
+                        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/90 z-10"></div>
+                        <div class="absolute inset-0 bg-[url('${game.img}')] bg-cover bg-center transition-transform duration-700 group-hover:scale-110"></div>
+                        <div class="relative z-20 mt-auto">
+                            <h3 class="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">${game.title}</h3>
+                            <p class="text-slate-400 text-xs mt-1">${game.period.split('|')[1].trim()}</p>
+                            <p class="text-slate-300 text-sm mt-2 line-clamp-2 opacity-80">${game.desc}</p>
+                            <div class="mt-4 inline-block px-3 py-1 border border-cyan-500/50 rounded-full text-cyan-300 text-xs hover:bg-cyan-500/20 transition-colors">View Details</div>
+                        </div>
+                    </div>`).join('');
+            },
+
+            // Render System Cards (New)
+            renderSystemList() {
+                const container = document.getElementById('system-grid-container');
+                container.innerHTML = gameData.map((game, index) => `
+                    <div onclick="app.openArchDetail('${game.id}')" class="glass-panel rounded-2xl p-4 h-72 cursor-pointer transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-center items-center group relative overflow-hidden border border-indigo-500/20 hover:border-indigo-400" style="animation-delay: ${index * 100}ms">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 z-10"></div>
+                        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500 to-transparent transition-opacity group-hover:opacity-20"></div>
+                        
+                        <div class="relative z-20 text-center">
+                            <div class="text-5xl mb-3 opacity-80 group-hover:scale-110 transition-transform">⚙️</div>
+                            <h3 class="text-lg font-bold text-white group-hover:text-indigo-300 transition-colors">${game.title}</h3>
+                            <p class="text-indigo-200 text-xs mt-1 mb-4">Architecture & Data Flow</p>
+                            <div class="inline-block px-3 py-1 bg-indigo-900/50 border border-indigo-500/50 rounded text-indigo-200 text-xs">Analyze Structure</div>
+                        </div>
+                    </div>`).join('');
+            },
+
+            // Navigation Handler
+            switchView(viewName) {
+                const views = ['view-main', 'view-games', 'view-systems', 'view-arch-detail'];
+                views.forEach(v => {
+                    const el = document.getElementById(v);
+                    if (v === `view-${viewName}`) {
+                        el.classList.remove('hidden-view');
+                        el.classList.add('fade-in');
+                    } else {
+                        el.classList.add('hidden-view');
+                    }
+                });
+                window.scrollTo(0,0);
+            },
+
+            // Open Game Modal
+            openGameDetail(gameId) {
+                const game = gameData.find(g => g.id === gameId);
+                if (!game) return;
+                document.getElementById('modal-game-title').innerText = game.title;
+                document.getElementById('modal-game-period').innerText = game.period;
+                document.getElementById('modal-game-desc').innerText = game.desc;
+                document.getElementById('modal-game-img').style.backgroundImage = `url('${game.img}')`;
+                document.getElementById('modal-btn-youtube').href = game.youtube;
+                document.getElementById('modal-btn-github').href = game.github;
+                document.getElementById('modal-game-features').innerHTML = game.features.map(f => `<li>${f}</li>`).join('');
+                document.getElementById('modal-game-tech').innerHTML = game.tech.map(t => `<span class="px-2 py-1 bg-slate-700 rounded border border-slate-600 text-xs text-slate-200">${t}</span>`).join('');
+                this.openModal('game');
+            },
+
+            // Open Full Page Architecture Detail (New)
+            openArchDetail(gameId) {
+                const game = gameData.find(g => g.id === gameId);
+                if (!game) return;
+
+                // 1. Titles
+                document.getElementById('arch-detail-title').innerText = game.title;
                 
-                if (type === 'arch' && !this.chartInstance) {
-                    // Small delay to ensure modal layout is rendered before chart
-                    setTimeout(() => this.initChart(), 50);
-                }
+                // 2. Tech Stack Badges
+                document.getElementById('arch-tech-stack').innerHTML = game.tech.map(t => 
+                    `<span class="px-3 py-1 bg-indigo-900/40 border border-indigo-500/30 rounded-lg text-indigo-100 text-sm font-bold shadow-sm">${t}</span>`
+                ).join('');
+
+                // 3. Flow Chart Rendering
+                const flowContainer = document.getElementById('arch-flow-chart');
+                let flowHTML = '';
+                game.arch.flow.forEach((item, idx) => {
+                    if (item.type === 'node') {
+                        flowHTML += `<div class="flow-node w-48">${item.text}</div>`;
+                    } else if (item.type === 'arrow') {
+                        flowHTML += `<div class="flow-arrow h-8">↓ <span class="text-xs ml-2 text-slate-500">${item.text}</span></div>`;
+                    } else if (item.type === 'split') {
+                        flowHTML += `
+                            <div class="flex gap-4 justify-center w-full">
+                                <div class="flow-arrow rotate-45 transform origin-top-left">sw</div>
+                                <div class="flex gap-4">
+                                    ${item.nodes.map(n => `<div class="flow-node w-40 border-indigo-500/30">${n}</div>`).join('')}
+                                </div>
+                            </div>`; // Simplified split for visual
+                        // Better visual split for vertical layout
+                         flowHTML = flowHTML.replace(/<div class="flex gap-4 justify-center w-full">[\s\S]*?<\/div>/, 
+                            `<div class="flex items-center justify-center gap-2 w-full">
+                                <div class="h-px w-8 bg-slate-600"></div>
+                                <div class="flex gap-4">
+                                    ${item.nodes.map(n => `<div class="flow-node w-40 border-indigo-500/50 bg-indigo-900/20">${n}</div>`).join('')}
+                                </div>
+                                <div class="h-px w-8 bg-slate-600"></div>
+                            </div>`
+                        );
+                    }
+                });
+                flowContainer.innerHTML = flowHTML;
+
+                // 4. Algorithms List
+                document.getElementById('arch-algorithms').innerHTML = game.arch.algos.map(a => 
+                    `<li class="flex items-start gap-2"><span class="text-indigo-400 font-bold">✓</span><span>${a}</span></li>`
+                ).join('');
+
+                // 5. Render Chart
+                this.initDetailChart(game.arch.stats);
+
+                this.switchView('arch-detail');
             },
 
-            closeModal(type) {
-                const modal = document.getElementById(`modal-${type}`);
-                modal.classList.add('hidden');
-                document.body.style.overflow = ''; // Restore body scroll
-            },
+            openModal(type) { document.getElementById(`modal-${type}`).classList.remove('hidden'); },
+            closeModal(type) { document.getElementById(`modal-${type}`).classList.add('hidden'); },
 
-            initChart() {
-                const ctx = document.getElementById('archChart').getContext('2d');
+            initDetailChart(data) {
+                const ctx = document.getElementById('archDetailChart').getContext('2d');
+                if (this.chartInstance) this.chartInstance.destroy(); // Destroy previous chart
                 
                 this.chartInstance = new Chart(ctx, {
                     type: 'radar',
                     data: {
-                        labels: ['Stability', 'Scalability', 'Security', 'Performance', 'Code'],
+                        labels: ['Stability', 'Scalability', 'Security', 'Performance', 'Maintainability'],
                         datasets: [{
-                            label: 'Score',
-                            data: [90, 85, 95, 80, 88],
+                            label: 'System Score',
+                            data: data,
                             backgroundColor: 'rgba(99, 102, 241, 0.2)',
                             borderColor: '#818cf8',
                             pointBackgroundColor: '#fff',
@@ -338,16 +606,14 @@
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
+                        responsive: true, maintainAspectRatio: false,
                         scales: {
                             r: {
                                 angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                                 grid: { color: 'rgba(255, 255, 255, 0.1)' },
                                 pointLabels: { color: '#cbd5e1', font: { size: 10 } },
                                 ticks: { display: false, backdropColor: 'transparent' },
-                                suggestMin: 0,
-                                suggestMax: 100
+                                suggestMin: 0, suggestMax: 100
                             }
                         },
                         plugins: { legend: { display: false } }
@@ -355,6 +621,8 @@
                 });
             }
         };
+
+        app.init();
     </script>
 </body>
 </html>
